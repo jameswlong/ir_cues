@@ -14,7 +14,7 @@ dependencies = [
 ]
 
 [project.scripts]
-ir-cues = "dfir_cues.cli:app"
+ir-cues = "ir_cues.cli:app"
 
 [build-system]
 requires = ["setuptools>=61.0"]

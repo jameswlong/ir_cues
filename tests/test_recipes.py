@@ -127,3 +127,25 @@ def test_composed_recipe_renders():
     doc = load_recipe("incident/host/quick-trriage")
     out = render_recipe(doc, {"suspect_pid": 1}, format="text")
     assert "Logged-on users" in out and "Active TCP/UDP" in out
+    
+def test_include_step_pulls_single_variant():
+    from dfir_cues.loader import load_recipe
+    from dfir_cues.renderer import render_recipe
+    doc = {
+        "id": "tmp/composite/test",
+        "title": "tmp",
+        "steps": [
+            {
+                "include_step": {
+                    "id": "windows/process/triage",
+                    "step": "Hash binary",
+                    "variant": "pwsh",
+                    "vars": {"pid": "1"},
+                    "format": "text",
+                },
+                "title": "just hash",
+            }
+        ],
+    }
+    out = render_recipe(doc, {}, "text")
+    assert "Get-FileHash" in out
