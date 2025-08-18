@@ -1,0 +1,19 @@
+id: windows/persistence/autostarts
+title: Check persistence mechanisms (Autostarts)
+tags: [windows, persistence]
+steps:
+  - name: Query common registry run keys
+    render:
+      pwsh: |
+        Get-ItemProperty "HKCU:\Software\Microsoft\Windows\CurrentVersion\Run" 
+        Get-ItemProperty "HKLM:\Software\Microsoft\Windows\CurrentVersion\Run"
+  - name: Scheduled tasks
+    render:
+      pwsh: |
+        Get-ScheduledTask | Where-Object {$_.TaskPath -notlike '\Microsoft\*'} |
+          Select TaskName,TaskPath,Actions
+  - name: Services set to auto-start
+    render:
+      pwsh: |
+        Get-Service | Where-Object StartType -eq "Automatic" | 
+          Select-Object Name,DisplayName,Status

@@ -1,0 +1,63 @@
+# ir-cues
+IR-Cues is an offline incident response playbook tool aiming to give you DFIR commands at your fingertips.
+It aims to be A CLI that asks: “What do you want to investigate? (process, registry, network, persistence, browser history)” and then outputs the exact commands (PowerShell, KQL, Velociraptor queries, Sigma rules etc.) basically an interactive playbook.
+
+## Why though?
+Have you ever been completing a CTF or BTLO challenge and been digging through a notebook to remember what the command line was to extract the process list from a volatility capture? Have you ever tried to recall how get the parent and child processes on a windows box from a process id but can't find the command to run and you have no recourse to the internet? Well ir-cues is for you. 
+
+ir-cues started life as a tool to fix the fact my memory has slightly more holes than a sieve by giving me a searchable single place where i can go... "what was the powershell to enable powershell remoting?"
+
+Playbooks live in docs, not the terminal.
+
+You need repeatable, short steps and a searchable indexes of commands? well ir-cues prints ready-to-run snippets with brief context.
+
+No agents. No backends. Just text.
+
+## Install
+
+```bash
+# clone
+git clone https://github.com/<you>/ir-cues.git
+cd ir-cues
+
+# install
+pip install -e .
+```
+
+## Usage
+
+tbd
+
+## Support
+
+You can Email ir-cues@proton.me
+
+## Roadmap
+
+tbd
+
+## Contributing
+
+See Contributing.md
+
+Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
+
+Please make sure to update tests as appropriate.
+
+## Authors
+
+\> **whoami**
+ir-cues\JamesWLong
+
+\>**finger JamesWLong**
+
+Sometimes known as **0xDEADBEEF** (if you frequent BTLO), sometimes known as **Khador Vess** (if you fly internet spaceships), always known as James Long - Security analyst, threat hunter, researcher, trainer and enthusiast. My day job has me teaching dev teams that - yes, SQL injection is still a problem & no, you can't just ignore that expired certificate. Also the answer is yes - i am old enough to remeber the internet where **finger** was still in use. That may or may not be why my memory is so bad.
+
+## Acknolwedgments
+
+Massive shoutout and thank you to @s0cm0nkeysec (https://s0cm0nkey.github.io/) for the phenominal work put into the reference guide. 
+
+
+## License
+
+[MIT](https://choosealicense.com/licenses/mit/)

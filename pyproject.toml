@@ -1,0 +1,30 @@
+[project]
+name = "ir-cues"
+version = "0.1.0"
+description = "IR-Cues is an offline incident response playbook tool aiming to give you DFIR commands at your fingertips."
+authors = [{ name = "James William Long", email = "ir-cues@proton.me" }]
+license = { text = "MIT" }
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "typer>=0.12",
+    "rich>=13.7",
+    "jinja2>=3.1",
+    "ruamel.yaml>=0.18",
+]
+
+[project.scripts]
+ir-cues = "dfir_cues.cli:app"
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.black]
+line-length = 88
+
+[tool.ruff]
+select = ["E", "F", "I"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
