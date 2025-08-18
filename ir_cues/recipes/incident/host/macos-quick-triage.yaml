@@ -1,50 +1,49 @@
-id: incident/host/linux-quick-triage
-title: Host quick triage (Linux)
-tags: [incident, linux, triage]
+id: incident/host/macos-quick-triage
+title: Host quick triage (macOS)
+tags: [incident, macos, triage]
 vars:
   suspect_pid: {type: int, required: false}
   lookback_minutes: {type: int, default: 60}
-  suspect_user: {type: str, required: false}
 steps:
   - include:
-      id: linux/users/logged-on
+      id: macos/users/logged-on
     title: Current logged-on users
 
   - include:
-      id: linux/network/connections
+      id: macos/network/connections
     title: Active network connections
 
   - include:
-      id: linux/process/list
+      id: macos/process/list
     title: Running processes snapshot
 
   - include:
-      id: linux/auth/failures
+      id: macos/auth/failures
       vars:
         minutes: "{{ lookback_minutes }}"
     title: Recent auth failures
 
   - include:
-      id: linux/cron/triage
-    title: Persistence checks (cron + enabled services)
+      id: macos/persistence/launch-items
+    title: Persistence checks (LaunchAgents/Daemons)
 
   - include:
-      id: linux/files/recent-mods
+      id: macos/files/recent-mods
       vars:
         minutes: "{{ lookback_minutes }}"
-    title: Recent file changes in /etc and /tmp
+    title: Recent file changes in key dirs
 
-  - name: Optional: triage a suspect process
+  - name: Optional - triage a suspect process
     render:
       bash: |
         if [ "{{ suspect_pid | default('') }}" != "" ]; then
-          echo "# Delegate to linux/process/triage for PID {{ suspect_pid }}"
+          echo "# Delegate to macos/process/triage for PID {{ suspect_pid }}"
         else
           echo "# No suspect_pid provided. Skipping detailed triage."
         fi
 
   - include:
-      id: linux/process/triage
+      id: macos/process/triage
       vars:
         pid: "{{ suspect_pid | default('0') }}"
     title: Detailed process triage (if suspect_pid set)

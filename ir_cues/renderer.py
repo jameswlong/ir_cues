@@ -1,4 +1,4 @@
-from dfir_cues.loader import load_recipe as _load_recipe
+from ir_cues.loader import load_recipe as _load_recipe
 import jinja2
 
 def _render_text_block(kind: str, content: str, fmt: str) -> str:
