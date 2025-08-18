@@ -5,8 +5,10 @@ import os
 
 
 def run_cli(*args):
-    # Assumes 'ir-cues' entry point is installed in the env
-    return subprocess.run(["ir-cues", *args], capture_output=True, text=True, check=True)
+    return subprocess.run(
+        [sys.executable, "-m", "ir_cues.cli", *args],
+        capture_output=True, text=True, check=True
+    )
 
 
 def test_cli_list_runs():
@@ -16,7 +18,7 @@ def test_cli_list_runs():
 
 def test_cli_show_and_run_smoke():
     # Find one known recipe id to smoke test; adjust if you rename
-    recipe_id = "windows/process/triage"
+    recipe_id = "incident/host/linux-quick-triage"
 
     show = run_cli("show", recipe_id).stdout
     assert "vars" in show.lower()
