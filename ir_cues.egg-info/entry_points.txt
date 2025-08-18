@@ -1,2 +1,0 @@
-[console_scripts]
-ir_cues = ir_cues.cli:app
