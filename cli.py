@@ -2,8 +2,8 @@
 import json, sys
 import typer
 from rich.console import Console
-from dfir_cues.loader import load_index, load_recipe
-from dfir_cues.renderer import render_recipe
+from ir_cues.loader import load_index, load_recipe
+from ir_cues.renderer import render_recipe
 
 app = typer.Typer()
 con = Console()
