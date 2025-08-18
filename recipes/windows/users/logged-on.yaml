@@ -1,0 +1,19 @@
+id: windows/users/logged-on
+title: Logged-on users (interactive + RDP)
+tags: [windows, users]
+steps:
+  - name: Interactive sessions
+    render:
+      pwsh: |
+        quser 2>$null
+  - name: RDP and SMB sessions
+    render:
+      pwsh: |
+        Get-CimInstance Win32_LogonSession |
+          Where-Object {$_.LogonType -in 2,10,11} |
+          ForEach-Object {
+            $_ | Add-Member -NotePropertyName User -NotePropertyValue (
+              (Get-CimAssociatedInstance -InputObject $_ -Association Win32_LoggedOnUser).Account |
+              ForEach-Object { "$($_.Domain)\$($_.Name)" } -join ","
+            ) -PassThru
+          } | Select-Object LogonId, LogonType, StartTime, User

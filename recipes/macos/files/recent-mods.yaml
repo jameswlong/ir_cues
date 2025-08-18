@@ -1,0 +1,21 @@
+id: macos/files/recent-mods
+title: Recent file changes in /etc, /tmp, Launch* (last N minutes)
+tags: [macos, files]
+vars:
+  minutes: {type: int, default: 60}
+steps:
+  - name: /etc modifications
+    render:
+      bash: |
+        find /etc -type f -newerct "{{ minutes }} minutes ago" -print 2>/dev/null | head -n 400
+  - name: /tmp creations/changes
+    render:
+      bash: |
+        find /tmp -type f -newerct "{{ minutes }} minutes ago" -print 2>/dev/null | head -n 400
+  - name: Launch items changed
+    render:
+      bash: |
+        for d in ~/Library/LaunchAgents /Library/LaunchAgents /Library/LaunchDaemons; do
+          [ -d "$d" ] || continue
+          find "$d" -type f -name "*.plist" -newerct "{{ minutes }} minutes ago" -print 2>/dev/null
+        done

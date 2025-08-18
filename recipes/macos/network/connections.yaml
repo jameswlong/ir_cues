@@ -1,0 +1,12 @@
+id: macos/network/connections
+title: Active TCP/UDP listeners and connections
+tags: [macos, network]
+steps:
+  - name: Listening sockets
+    render:
+      bash: |
+        lsof -nP -iTCP -sTCP:LISTEN
+  - name: Established connections
+    render:
+      bash: |
+        lsof -nP -iTCP -sTCP:ESTABLISHED

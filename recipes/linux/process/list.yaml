@@ -1,0 +1,20 @@
+id: linux/process/list
+title: Process list with ancestry and newest hashes
+tags: [linux, process]
+steps:
+  - name: Full process snapshot (tree view)
+    render:
+      bash: |
+        ps -eo pid,ppid,user,stime,tty,cmd --sort=ppid,pid | less -S
+  - name: Hash the 5 newest executable files for newest processes (best effort)
+    render:
+      bash: |
+        ps -eo pid,lstart,cmd --sort=-lstart | head -n 20 | awk '{print $1}' | \
+        while read p; do
+          exe="/proc/${p}/exe"
+          if [ -e "$exe" ] && [ ! -L "$exe" ]; then
+            realpath "$exe" 2>/dev/null
+          else
+            readlink -f "$exe" 2>/dev/null
+          fi
+        done | grep -v '^$' | head -n 5 | xargs -r sha256sum

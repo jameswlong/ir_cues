@@ -1,0 +1,45 @@
+id: windows/packages/inventory
+title: Inventory installed packages (multiple sources)
+tags: [windows, packages, inventory]
+steps:
+  - name: Registry (64-bit view)
+    render:
+      cmd: |
+        reg query "HKLM\Software\Microsoft\Windows\CurrentVersion\Uninstall" /s /f DisplayName
+    hint: "Traditional source. May include MSI + non-MSI apps."
+
+  - name: Registry (32-bit view on 64-bit OS)
+    render:
+      cmd: |
+        reg query "HKLM\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall" /s /f DisplayName
+    hint: "Captures 32-bit apps on 64-bit Windows."
+
+  - name: PowerShell PackageManagement (Programs provider)
+    render:
+      pwsh: |
+        Get-Package -ProviderName Programs | Select-Object Name, Version, ProviderName | Format-Table -AutoSize
+    hint: "Safer than Win32_Product. Good human-readable list."
+
+  - name: WMIC product (CSV quick list)
+    render:
+      cmd: |
+        wmic product get name,version /format:csv
+    hint: "Warning: WMIC/Win32_Product can trigger MSI self-repair. Prefer registry or Get-Package."
+
+  - name: WMIC product (full detail)
+    render:
+      cmd: |
+        wmic product get /ALL
+    hint: "Verbose and slow. Same self-repair caveat applies."
+
+  - name: PowerShell Win32_Product (WMI)
+    render:
+      pwsh: |
+        Get-WmiObject -Class Win32_Product | Select-Object Name, Version, Vendor, IdentifyingNumber
+    hint: "Triggers MSI consistency checks. Avoid on production if possible."
+
+  - name: DISM packages (Windows components/updates)
+    render:
+      cmd: |
+        dism /online /get-packages
+    hint: "Windows component store (CBS) packages—OS features/updates, not user apps."

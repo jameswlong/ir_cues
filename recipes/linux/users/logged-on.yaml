@@ -1,0 +1,16 @@
+id: linux/users/logged-on
+title: Logged-on users (local, SSH)
+tags: [linux, users]
+steps:
+  - name: Interactive sessions
+    render:
+      bash: |
+        who
+  - name: Last logins (recent)
+    render:
+      bash: |
+        last -n 10 -a
+  - name: SSH sessions (ps view)
+    render:
+      bash: |
+        ps -eo pid,ppid,user,stime,cmd | grep -E 'sshd: .*(@pts|@tty|@notty)' --color=never || true

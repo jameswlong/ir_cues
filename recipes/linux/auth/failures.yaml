@@ -1,0 +1,24 @@
+id: linux/auth/failures
+title: Authentication failures (last N minutes)
+tags: [linux, auth]
+vars:
+  minutes: {type: int, default: 60}
+steps:
+  - name: PAM/SSH failures (journal)
+    render:
+      bash: |
+        if command -v journalctl >/dev/null 2>&1; then
+          journalctl --since "{{ minutes }} minutes ago" -p warning -u ssh --no-pager | grep -E "Failed|authentication failure" -i || true
+          journalctl --since "{{ minutes }} minutes ago" --no-pager | grep -Ei "Failed password|authentication failure|sudo: .*authentication" || true
+        else
+          echo "# journalctl not present; try /var/log/auth.log below"
+        fi
+  - name: Syslog fallback (Debian/Ubuntu)
+    render:
+      bash: |
+        if [ -f /var/log/auth.log ]; then
+          awk -v d="$(date -d '{{ minutes }} minutes ago' '+%b %_d %H:%M:%S')" \
+              'BEGIN{split(d, a, " "); mon=a[1]; day=a[2]+0; t=a[3]}
+               { if ($1==mon && ($2+0)>=day) print }' /var/log/auth.log | \
+          grep -Ei "Failed password|authentication failure|sudo: .*authentication" || true
+        fi

@@ -1,0 +1,17 @@
+id: macos/users/logged-on
+title: Logged-on users (console, GUI, SSH)
+tags: [macos, users]
+steps:
+  - name: Console user
+    render:
+      bash: |
+        stat -f%Su /dev/console
+  - name: GUI and TTY sessions
+    render:
+      bash: |
+        who
+        last -10
+  - name: SSH sessions (ps view)
+    render:
+      bash: |
+        ps -axo pid,ppid,user,start,command | grep -E '[s]shd:.*@' || true

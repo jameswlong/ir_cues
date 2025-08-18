@@ -1,0 +1,15 @@
+id: windows/process/list
+title: Process list with hashes (top talkers)
+tags: [windows, process]
+steps:
+  - name: Running processes with parent, path, CPU
+    render:
+      pwsh: |
+        Get-CimInstance Win32_Process |
+          Select-Object ProcessId,ParentProcessId,Name,ExecutablePath,CommandLine,CreationDate |
+          Sort-Object CreationDate
+  - name: Hash the top 5 newest processes
+    render:
+      pwsh: |
+        Get-Process | Sort-Object StartTime -Descending | Select-Object -First 5 |
+          ForEach-Object { if ($_.Path) { Get-FileHash -Algorithm SHA256 -Path $_.Path } }

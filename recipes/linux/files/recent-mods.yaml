@@ -1,0 +1,14 @@
+id: linux/files/recent-mods
+title: Recent file changes in /etc and /tmp
+tags: [linux, files]
+vars:
+  minutes: {type: int, default: 60}
+steps:
+  - name: /etc modifications
+    render:
+      bash: |
+        find /etc -type f -mmin -{{ minutes }} -printf "%TY-%Tm-%Td %TH:%TM:%TS %p\n" 2>/dev/null | sort
+  - name: /tmp creations and exec bits
+    render:
+      bash: |
+        find /tmp -type f -mmin -{{ minutes }} -printf "%TY-%Tm-%Td %TH:%TM:%TS %m %p\n" 2>/dev/null | sort | head -n 200

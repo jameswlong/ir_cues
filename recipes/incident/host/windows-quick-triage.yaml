@@ -1,0 +1,38 @@
+id: incident/host/quick-triage
+title: Host quick triage (Windows)
+tags: [incident, windows, triage]
+vars:
+  suspect_pid: {type: int, required: false}
+  minutes: {type: int, default: 10}
+steps:
+  - include:
+      id: windows/users/logged-on
+    title: Current logged-on users
+
+  - include:
+      id: windows/network/connections
+    title: Active network connections
+
+  - include:
+      id: windows/process/list
+    title: Running processes snapshot
+
+  - name: Optional: triage a suspect process
+    hint: "Provide suspect_pid to enable this step."
+    render:
+      pwsh: |
+        if ({{ suspect_pid | default('0') }} -gt 0) {
+          "# Delegating to windows/process/triage for PID {{ suspect_pid }}"
+        } else {
+          "# No suspect_pid provided. Skipping detailed triage."
+        }
+
+  - include:
+      id: windows/process/triage
+      vars:
+        pid: "{{ suspect_pid | default('0') }}"
+    title: Detailed process triage (if suspect_pid set)
+
+  - include:
+      id: windows/persistence/autostarts
+    title: Persistence checks (autostarts)

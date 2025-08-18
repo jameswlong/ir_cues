@@ -1,0 +1,38 @@
+id: macos/process/triage
+title: Quick process triage by PID
+tags: [macos, process, triage]
+vars:
+  pid: {type: int, required: true}
+steps:
+  - name: Details and ancestry
+    render:
+      bash: |
+        ps -axo pid,ppid,user,start,etime,command | awk '$1 == {{ pid }}'
+        ppid=$(ps -o ppid= -p {{ pid }} | tr -d ' ')
+        if [ -n "$ppid" ]; then
+          echo "--- parent ---"
+          ps -axo pid,ppid,user,start,etime,command | awk -v p="$ppid" '$1 == p'
+        fi
+  - name: Open network for PID
+    render:
+      bash: |
+        lsof -nP -i -p {{ pid }}
+  - name: Open files (top 50)
+    render:
+      bash: |
+        lsof -p {{ pid }} | head -n 50
+  - name: Binary path and hash
+    render:
+      bash: |
+        exe=$(lsof -p {{ pid }} | awk '$4=="txt" {print $9; exit}')
+        if [ -n "$exe" ] && [ -r "$exe" ]; then
+          echo "$exe"
+          shasum -a 256 "$exe"
+        fi
+  - name: Code signature (if present)
+    render:
+      bash: |
+        exe=$(lsof -p {{ pid }} | awk '$4=="txt" {print $9; exit}')
+        if [ -n "$exe" ] && [ -r "$exe" ]; then
+          codesign -dv --verbose=4 "$exe" 2>&1 | sed -n '1,20p'
+        fi

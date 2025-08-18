@@ -1,0 +1,12 @@
+id: linux/network/connections
+title: Active TCP/UDP listeners and connections
+tags: [linux, network]
+steps:
+  - name: Listening sockets
+    render:
+      bash: |
+        ss -lntup
+  - name: Established connections
+    render:
+      bash: |
+        ss -ntup state established

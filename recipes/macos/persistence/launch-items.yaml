@@ -1,0 +1,26 @@
+id: macos/persistence/launch-items
+title: LaunchAgents/Daemons overview
+tags: [macos, persistence]
+steps:
+  - name: User LaunchAgents
+    render:
+      bash: |
+        ls -al ~/Library/LaunchAgents 2>/dev/null || true
+  - name: System LaunchAgents
+    render:
+      bash: |
+        ls -al /Library/LaunchAgents 2>/dev/null || true
+  - name: System LaunchDaemons
+    render:
+      bash: |
+        ls -al /Library/LaunchDaemons 2>/dev/null || true
+  - name: Inspect suspicious items (print ProgramArguments and RunAtLoad)
+    render:
+      bash: |
+        for d in ~/Library/LaunchAgents /Library/LaunchAgents /Library/LaunchDaemons; do
+          [ -d "$d" ] || continue
+          find "$d" -type f -name "*.plist" -maxdepth 1 2>/dev/null | while read p; do
+            echo "== $p =="
+            plutil -p "$p" 2>/dev/null | egrep 'Program|RunAtLoad|KeepAlive' || true
+          done
+        done

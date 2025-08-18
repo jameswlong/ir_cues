@@ -1,0 +1,50 @@
+id: incident/host/linux-quick-triage
+title: Host quick triage (Linux)
+tags: [incident, linux, triage]
+vars:
+  suspect_pid: {type: int, required: false}
+  lookback_minutes: {type: int, default: 60}
+  suspect_user: {type: str, required: false}
+steps:
+  - include:
+      id: linux/users/logged-on
+    title: Current logged-on users
+
+  - include:
+      id: linux/network/connections
+    title: Active network connections
+
+  - include:
+      id: linux/process/list
+    title: Running processes snapshot
+
+  - include:
+      id: linux/auth/failures
+      vars:
+        minutes: "{{ lookback_minutes }}"
+    title: Recent auth failures
+
+  - include:
+      id: linux/cron/triage
+    title: Persistence checks (cron + enabled services)
+
+  - include:
+      id: linux/files/recent-mods
+      vars:
+        minutes: "{{ lookback_minutes }}"
+    title: Recent file changes in /etc and /tmp
+
+  - name: Optional: triage a suspect process
+    render:
+      bash: |
+        if [ "{{ suspect_pid | default('') }}" != "" ]; then
+          echo "# Delegate to linux/process/triage for PID {{ suspect_pid }}"
+        else
+          echo "# No suspect_pid provided. Skipping detailed triage."
+        fi
+
+  - include:
+      id: linux/process/triage
+      vars:
+        pid: "{{ suspect_pid | default('0') }}"
+    title: Detailed process triage (if suspect_pid set)

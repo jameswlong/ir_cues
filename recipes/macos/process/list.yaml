@@ -1,0 +1,20 @@
+id: macos/process/list
+title: Process list with ancestry and hashes (newest)
+tags: [macos, process]
+steps:
+  - name: Full process snapshot (tree-ish)
+    render:
+      bash: |
+        ps -axo pid,ppid,user,start,etime,command | sort -k2,2 -k1,1n | head -n 200
+  - name: Hash the 5 newest process binaries (best effort)
+    render:
+      bash: |
+        ps -axo pid,lstart -r | head -n 20 | awk '{print $1}' | \
+        while read p; do
+          exe=$(lsof -p "$p" | awk '$4=="txt" {print $9; exit}')
+          if [ -n "$exe" ] && [ -r "$exe" ]; then
+            echo "$p  $exe"
+          fi
+        done | head -n 5 | while read pid path; do
+          shasum -a 256 "$path"
+        done

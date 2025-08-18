@@ -1,0 +1,20 @@
+id: macos/auth/failures
+title: Authentication failures (last N minutes)
+tags: [macos, auth]
+vars:
+  minutes: {type: int, default: 60}
+steps:
+  - name: Unified log (sudo/ssh/auth failures)
+    render:
+      bash: |
+        log show --style syslog --last {{ minutes }}m \
+          --predicate 'eventMessage CONTAINS[c] "Failed password" OR
+                       eventMessage CONTAINS[c] "authentication failure" OR
+                       eventMessage CONTAINS[c] "sudo" OR
+                       eventMessage CONTAINS[c] "FAILED LOGIN"' 2>/dev/null | head -n 400
+  - name: system.log fallback
+    render:
+      bash: |
+        if [ -f /var/log/system.log ]; then
+          grep -Ei "Failed password|authentication failure|sudo|FAILED LOGIN" /var/log/system.log | tail -n 200
+        fi

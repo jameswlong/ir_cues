@@ -1,0 +1,28 @@
+id: linux/process/triage
+title: Quick process triage by PID
+tags: [linux, process, triage]
+vars:
+  pid: {type: int, required: true}
+steps:
+  - name: Basic details and ancestry
+    render:
+      bash: |
+        ps -o pid,ppid,user,ruid,sgi,tty,etime,cmd -p {{ pid }}
+        echo "--- parent ---"
+        ppid=$(ps -o ppid= -p {{ pid }} | tr -d ' ')
+        if [ -n "$ppid" ]; then ps -o pid,ppid,user,etime,cmd -p "$ppid"; fi
+  - name: Open network connections for PID
+    render:
+      bash: |
+        ss -ntup | awk '$7 ~ /pid={{ pid }}/'
+  - name: Mapped files and cwd
+    render:
+      bash: |
+        ls -al /proc/{{ pid }}/cwd 2>/dev/null || true
+        ls -al /proc/{{ pid }}/exe 2>/dev/null || true
+        ls -al /proc/{{ pid }}/fd  2>/dev/null | head -n 30 || true
+  - name: Hash executable (if available)
+    render:
+      bash: |
+        exe=$(readlink -f /proc/{{ pid }}/exe 2>/dev/null || true)
+        if [ -n "$exe" ]; then sha256sum "$exe"; fi

@@ -21,6 +21,12 @@ def load_yaml(path):
     with open(path, "r", encoding="utf-8") as fh:
         return yaml.safe_load(fh)
 
+def rel_id_from_path(path: str) -> str:
+    rel = os.path.relpath(path, RECIPES_DIR)
+    # drop extension
+    rel_no_ext, _ = os.path.splitext(rel)
+    # normalize to forward slashes for IDs
+    return rel_no_ext.replace(os.sep, "/")
 
 def mock_value(var_spec):
     """
@@ -54,6 +60,19 @@ def build_vars(doc):
         else:
             out[k] = mock_value(spec)
     return out
+
+def test_recipe_id_matches_path():
+    mismatches = []
+    for path in all_recipe_paths():
+        doc = load_yaml(path)
+        assert isinstance(doc, dict), f"{path} did not parse to a dict"
+        assert "id" in doc and isinstance(doc["id"], str) and doc["id"].strip(), f"{path}: missing 'id'"
+        expected = rel_id_from_path(path)
+        actual = doc["id"].strip()
+        if actual != expected:
+            mismatches.append(f"\n- ID: '{actual}'\n  Path: '{expected}'\n  File: {path}")
+    assert not mismatches, "Recipe ID must match path (relative to RECIPES_DIR):" + "".join(mismatches)
+Tips:
 
 
 @pytest.mark.parametrize("path", all_recipe_paths())
@@ -101,3 +120,10 @@ def test_recipe_renders_with_mock_vars(path):
                 jinja2.Template(template).render(**vars_dict)
             except Exception as e:
                 pytest.fail(f"{path}: step {i} variant '{variant}' failed to render with mock vars: {e}")
+
+def test_composed_recipe_renders():
+    from dfir_cues.loader import load_recipe
+    from dfir_cues.renderer import render_recipe
+    doc = load_recipe("incident/host/quick-trriage")
+    out = render_recipe(doc, {"suspect_pid": 1}, format="text")
+    assert "Logged-on users" in out and "Active TCP/UDP" in out
