@@ -1,7 +1,7 @@
 #ir_cues/__init__.py
 
 """
-ir-cues: Incident Response cues at your fingertips.
+ir_cues: Incident Response cues at your fingertips.
 Quick command recipes for DFIR tasks (Windows, Linux, Cloud, Browser).
 """
 

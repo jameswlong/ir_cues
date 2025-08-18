@@ -1,8 +1,8 @@
 [project]
-name = "ir-cues"
+name = "ir_cues"
 version = "0.1.0"
-description = "IR-Cues is an offline incident response playbook tool aiming to give you DFIR commands at your fingertips."
-authors = [{ name = "James William Long", email = "ir-cues@proton.me" }]
+description = "ir_cues is an offline incident response playbook tool aiming to give you DFIR commands at your fingertips."
+authors = [{ name = "James William Long", email = "ir_cues@proton.me" }]
 license = { text = "MIT" }
 readme = "README.md"
 requires-python = ">=3.10"
@@ -11,10 +11,11 @@ dependencies = [
     "rich>=13.7",
     "jinja2>=3.1",
     "ruamel.yaml>=0.18",
+    "pyyaml>=6.0"
 ]
 
 [project.scripts]
-ir-cues = "ir_cues.cli:app"
+ir_cues = "ir_cues.cli:app"
 
 [build-system]
 requires = ["setuptools>=61.0"]
