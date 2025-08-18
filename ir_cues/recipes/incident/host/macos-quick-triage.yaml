@@ -33,7 +33,7 @@ steps:
         minutes: "{{ lookback_minutes }}"
     title: Recent file changes in key dirs
 
-  - name: Optional: triage a suspect process
+  - name: Optional - triage a suspect process
     render:
       bash: |
         if [ "{{ suspect_pid | default('') }}" != "" ]; then

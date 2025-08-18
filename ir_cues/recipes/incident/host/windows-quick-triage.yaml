@@ -1,4 +1,4 @@
-id: incident/host/quick-triage
+id: incident/host/windows-quick-triage
 title: Host quick triage (Windows)
 tags: [incident, windows, triage]
 vars:
@@ -17,7 +17,7 @@ steps:
       id: windows/process/list
     title: Running processes snapshot
 
-  - name: Optional: triage a suspect process
+  - name: Optional - triage a suspect process
     hint: "Provide suspect_pid to enable this step."
     render:
       pwsh: |
