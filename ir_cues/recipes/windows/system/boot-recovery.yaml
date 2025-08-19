@@ -1,0 +1,14 @@
+id: windows/system/boot-recovery
+title: Boot and recovery configuration
+tags: [windows, system, boot, recovery]
+steps:
+  - name: Get boot config via WMIC (legacy)
+    render:
+      cmd: |
+        wmic bootconfig get /all /format:list
+        wmic recoveros get /all /format:list
+  - name: PowerShell CIM
+    render:
+      pwsh: |
+        Get-CimInstance Win32_BootConfiguration | Format-List *
+        Get-CimInstance Win32_OSRecoveryConfiguration | Format-List *

@@ -1,0 +1,23 @@
+id: windows/process/triage
+title: Process triage (by PID)
+tags: [windows, process, triage, pid]
+steps:
+  - name: "WMIC process info by PID"
+    render:
+      cmd: |
+        wmic process where "ProcessId={{ pid }}" get /all /format:list
+
+  - name: "PowerShell detailed process info"
+    render:
+      pwsh: |
+        Get-Process -Id {{ pid }} | Format-List *
+
+  - name: "PowerShell process modules"
+    render:
+      pwsh: |
+        Get-Process -Id {{ pid }} | Select-Object -ExpandProperty Modules | Format-Table -AutoSize
+
+  - name: "PowerShell process services (if any)"
+    render:
+      pwsh: |
+        Get-WmiObject Win32_Service | Where-Object { $_.ProcessId -eq {{ pid }} } | Format-Table -AutoSize

@@ -1,0 +1,21 @@
+id: windows/system/time
+title: Date, time, and timezone
+tags: [windows, system, time, timezone]
+steps:
+  - name: Get Date and time in CMD shell
+    render:
+      cmd: |
+        echo %DATE% %TIME%
+        date /t
+        time /t
+  - name: Get Timezone from registry
+    render:
+      cmd: |
+        reg query "HKLM\System\CurrentControlSet\Control\TimeZoneInformation"
+  - name: PowerShell Get Time, Date and TimeZone information
+    render:
+      pwsh: |
+        Get-Date
+        Get-TimeZone
+        Get-ItemProperty "HKLM:\System\CurrentControlSet\Control\TimeZoneInformation" |
+          Select-Object TimeZoneKeyName, Bias, DaylightBias, StandardBias, DynamicDaylightTimeDisabled

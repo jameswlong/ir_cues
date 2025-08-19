@@ -1,0 +1,17 @@
+id: windows/system/os-info
+title: OS and computer info
+tags: [windows, system, os, info]
+steps:
+  - name: Systeminfo and CIM
+    render:
+      cmd: |
+        systeminfo
+        wmic os get /all /format:list
+        wmic computersystem list full
+        wmic computersystem get name,domain,manufacturer,model,numberofprocessors,primaryownername,username,roles,totalphysicalmemory /format:list
+        reg query "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion" /s
+      pwsh: |
+        Get-ComputerInfo
+        Get-CimInstance Win32_OperatingSystem | Format-List *
+        Get-CimInstance Win32_ComputerSystem | Format-List *
+        Get-ItemProperty "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion" | Format-List *

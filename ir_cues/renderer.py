@@ -1,6 +1,74 @@
 from ir_cues.loader import load_recipe as _load_recipe
 import jinja2
 
+def collect_commands(recipe: dict, vars: dict, _stack=None):
+    """
+    Return a flat sequence of commands to run, in order.
+    Each item: dict(id, step, variant, command).
+    Expands include and include_step.
+    """
+    _stack = _stack or []
+    rid = recipe.get("id", "<unknown>")
+    if rid in _stack:
+        return []  # prevent recursion
+    _stack = _stack + [rid]
+
+    seq = []
+    for i, step in enumerate(recipe.get("steps", []), start=1):
+        step_name = step.get("name") or step.get("title") or f"Step {i}"
+
+        if "render" in step:
+            for variant, template in step["render"].items():
+                try:
+                    cmd = jinja2.Template(template).render(**vars).strip()
+                except Exception as e:
+                    cmd = f"# ERROR rendering template: {e}"
+                if cmd:
+                    seq.append({"id": rid, "step": step_name, "variant": variant, "command": cmd})
+
+        elif "include" in step:
+            inc = step["include"]
+            child_id = inc["id"]
+            # inherit vars, then override
+            child_vars = {**vars}
+            for k, v in (inc.get("vars") or {}).items():
+                child_vars[k] = jinja2.Template(str(v)).render(**vars)
+            try:
+                child = _load_recipe(child_id)
+                seq.extend(collect_commands(child, child_vars, _stack=_stack))
+            except Exception as e:
+                seq.append({"id": rid, "step": step_name, "variant": "note", "command": f"# include failed {child_id}: {e}"})
+
+        elif "include_step" in step:
+            inc = step["include_step"]
+            child_id = inc["id"]
+            selector = inc["step"]
+            only_variant = inc.get("variant")
+            child_vars = {**vars}
+            for k, v in (inc.get("vars") or {}).items():
+                child_vars[k] = jinja2.Template(str(v)).render(**vars)
+
+            try:
+                child = _load_recipe(child_id)
+                # select step
+                steps = child.get("steps", [])
+                if isinstance(selector, int):
+                    idx = selector - 1
+                    sub = steps[idx]
+                else:
+                    sub = next(s for s in steps if s.get("name") == selector)
+                rblock = sub.get("render") or {}
+                variants = {only_variant: rblock[only_variant]} if only_variant else rblock
+                for variant, template in variants.items():
+                    cmd = jinja2.Template(template).render(**child_vars).strip()
+                    if cmd:
+                        seq.append({"id": child_id, "step": sub.get("name") or f"Step?", "variant": variant, "command": cmd})
+            except Exception as e:
+                seq.append({"id": rid, "step": step_name, "variant": "note", "command": f"# include_step failed {child_id}: {e}"})
+        else:
+            seq.append({"id": rid, "step": step_name, "variant": "note", "command": "# no render/include/include_step"})
+    return seq
+
 def _render_text_block(kind: str, content: str, fmt: str) -> str:
     if fmt == "md":
         return f"```{kind}\n{content}\n```"

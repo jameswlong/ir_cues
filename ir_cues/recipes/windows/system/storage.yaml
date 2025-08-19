@@ -1,0 +1,38 @@
+id: windows/system/storage
+title: Disks, partitions, and volumes
+tags: [windows, system, storage, disk]
+steps:
+  - name: WMIC physical drive snapshot (legacy)
+    render:
+      cmd: |
+        wmic diskdrive get /all /format:list
+
+  - name: WMIC partition info snapshot (legacy)
+    render:
+      cmd: |
+        wmic partition get /all /format:list
+
+  - name: WMIC logical disk info snapshot (legacy)
+    render:
+      cmd: |
+        wmic logicaldisk get /all /format:list
+
+  - name: Drive letters
+    render:
+      cmd: |
+        fsutil fsinfo drives
+
+  - name: PowerShell physical disks
+    render:
+      pwsh: |
+        Get-PhysicalDisk | Format-List *
+
+  - name: PowerShell - partitions
+    render:
+      pwsh: |
+        Get-Partition | Format-Table -AutoSize
+
+  - name: PowerShell - volumes
+    render:
+      pwsh: |
+        Get-Volume | Format-Table -AutoSize

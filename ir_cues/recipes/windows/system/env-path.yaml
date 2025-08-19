@@ -1,0 +1,13 @@
+id: windows/system/env-path
+title: Environment and PATH
+tags: [windows, system, env, path]
+steps:
+  - name: CMD path view
+    render:
+      cmd: |
+        echo %PATH%
+  - name: PowerShell path view
+    render:
+      pwsh: |
+        (Get-ChildItem Env:Path | Select-Object -ExpandProperty Value).Split(';')
+
